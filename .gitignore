@@ -1,0 +1,7 @@
+# .gitignore
+node_modules/
+backend/tmp/
+backend/log/
+backend/env
+*.log
+.DS_Store
