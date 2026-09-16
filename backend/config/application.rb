@@ -8,6 +8,8 @@ Bundler.require(*Rails.groups)
 
 module Backend
   class Application < Rails::Application
+    config.autoload_paths << Rails.root.join("app/lib")
+    config.autoload_paths << Rails.root.join("app/serializers")
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 7.2
 
