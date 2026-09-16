@@ -10,6 +10,8 @@ module Backend
   class Application < Rails::Application
     config.autoload_paths << Rails.root.join("app/lib")
     config.autoload_paths << Rails.root.join("app/serializers")
+    config.autoload_paths << Rails.root.join("app/policies")
+
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 7.2
 

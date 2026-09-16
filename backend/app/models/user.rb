@@ -12,6 +12,8 @@ class User < ApplicationRecord
                     format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :role, inclusion: { in: %w[employee manager admin] }
 
+  validates :team_id, presence: true, if: -> { role == "employee" }
+
   scope :active, -> { where(active: true) }
 
   def active_for_authentication?
