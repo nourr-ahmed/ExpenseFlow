@@ -6,9 +6,33 @@ module Api
 
       rescue_from ExpenseTransitionService::InvalidTransitionError, with: :handle_invalid_transition
 
+      ALLOWED_SORT_COLUMNS = %w[spent_on amount created_at].freeze
+
       def index
         expenses = policy_scope(Expense)
-        render json: expenses.map {|e| ExpenseSerializer.new(e).as_json}
+
+        if params[:status].present?
+          unless Expense::STATUSES.include?(params[:status])
+            render json: { error: "Invalid status: #{params[:status]}" }, status: :unprocessable_entity 
+            return
+          end
+          expenses = expenses.where(status: params[:status])
+        end
+
+        expenses = expenses.where(category_id: params[:category_id]) if params[:category_id].present?
+        expenses = expenses.where(spent_on: params[:from]..params[:to]) if params[:from].present? && params[:to].present?
+
+        sort_column = ALLOWED_SORT_COLUMNS.include?(params[:sort]) ? params[:sort] : "spent_on"
+        sort_direction = params[:direction] == "asc" ? "asc" : "desc"
+
+        expenses = expenses.order(sort_column => sort_direction)
+
+        pagy, expenses = pagy(expenses, items: params[:per_page] || 20, overflow: :empty_page)
+
+        render json: {
+          expenses: expenses.map {|e| ExpenseSerializer.new(e).as_json},
+          pagination: {page: pagy.page, pages: pagy.pages, count: pagy.count}
+        }
       end
 
       def show

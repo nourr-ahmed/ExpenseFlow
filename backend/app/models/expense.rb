@@ -10,7 +10,7 @@ class Expense < ApplicationRecord
     validates :amount, presence: true, numericality: { greater_than: 0, less_than_or_equal_to: 100_000 }
     validates :spent_on, presence: true
     validates :status, inclusion: { in: STATUSES }
-    validate :spent_on_within_valid_range
+    validate :spent_on_within_valid_range, if: :should_validate_spent_on?
     validate :category_is_active
 
     private
@@ -22,6 +22,13 @@ class Expense < ApplicationRecord
         elsif spent_on < Date.today - 90
             errors.add(:spent_on, "cannot be more than 90 days ago")
         end
+    end
+
+    def should_validate_spent_on?
+        return true if new_record?
+        return true if status == "draft" && status_was == "draft"
+        return true if status == "submitted" && status_was == "draft"
+        false
     end
 
     def category_is_active
