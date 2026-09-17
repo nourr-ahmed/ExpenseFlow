@@ -10,6 +10,7 @@ class ExpenseSerializer
       description: @expense.description,
       amount: @expense.amount,
       status: @expense.status,
+      payment_reference: @expense.payment_reference,
       spent_on: @expense.spent_on,
       created_at: @expense.created_at,
       updated_at: @expense.updated_at,

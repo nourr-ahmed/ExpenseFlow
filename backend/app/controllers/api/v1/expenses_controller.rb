@@ -1,7 +1,10 @@
 module Api
   module V1
     class ExpensesController < ApplicationController
-      before_action :set_expense, only: [:show, :update, :destroy]
+      before_action :set_expense, except: [:index, :create]
+      before_action :authorize_expense, except: [:index, :create]
+
+      rescue_from ExpenseTransitionService::InvalidTransitionError, with: :handle_invalid_transition
 
       def index
         expenses = policy_scope(Expense)
@@ -9,7 +12,6 @@ module Api
       end
 
       def show
-        authorize @expense
         render json: ExpenseSerializer.new(@expense).as_json
       end
 
@@ -24,7 +26,6 @@ module Api
       end
 
       def update
-        authorize @expense
         if @expense.status != "draft"
           return render json: { error: "Only draft expenses can be edited" }, status: :unprocessable_entity
         end
@@ -36,7 +37,6 @@ module Api
       end
 
       def destroy
-        authorize @expense
         unless @expense.status == "draft"
           return render json: { error: "Only draft expenses can be deleted" }, status: :unprocessable_entity
         end
@@ -44,6 +44,36 @@ module Api
         head :no_content
       end
 
+      def submit
+        ExpenseTransitionService.new(@expense, current_user).submit!
+        render json: ExpenseSerializer.new(@expense.reload).as_json
+      end
+
+      def approve
+        ExpenseTransitionService.new(@expense, current_user).approve!(comment: params[:comment])
+        render json: ExpenseSerializer.new(@expense.reload).as_json
+      end
+
+      def reject
+        if params[:comment].blank?
+          return render json: { error: "Comment is required to reject an expense" }, status: :unprocessable_entity
+        end
+        ExpenseTransitionService.new(@expense, current_user).reject!(comment: params[:comment])
+        render json: ExpenseSerializer.new(@expense.reload).as_json
+      end
+
+      def reimburse
+        if params[:payment_reference].blank?
+          return render json: { error: "Payment reference is required" }, status: :unprocessable_entity
+        end
+        ExpenseTransitionService.new(@expense, current_user).reimburse!(payment_reference: params[:payment_reference])
+        render json: ExpenseSerializer.new(@expense.reload).as_json
+      end
+
+      def reopen
+        ExpenseTransitionService.new(@expense, current_user).reopen!
+        render json: ExpenseSerializer.new(@expense.reload).as_json
+      end
 
       private
 
@@ -51,8 +81,16 @@ module Api
         @expense = Expense.find(params[:id])
       end
 
+      def authorize_expense
+        authorize @expense
+      end
+
       def expense_params
         params.require(:expense).permit(:title, :description, :amount, :category_id, :spent_on)
+      end
+
+      def handle_invalid_transition(exception)
+        render json: { error: exception.message }, status: :unprocessable_entity
       end
 
     end

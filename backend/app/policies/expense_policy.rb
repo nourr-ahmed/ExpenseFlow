@@ -20,23 +20,23 @@ class ExpensePolicy < ApplicationPolicy
   end
 
   def submit?
-    owner?(record.user_id) && record.status == "draft"
+    owner?(record.user_id) 
   end
   
   def approve?
-    eligible_reviewer? && record.status == "submitted"
+    eligible_reviewer?
   end
 
   def reject?
-    eligible_reviewer? && record.status == "submitted"
+    eligible_reviewer? 
   end
 
   def reimburse?
-    admin? && record.status == "approved"
+    admin? 
   end
 
   def reopen?
-    owner?(record.user_id) && record.status == "rejected"
+    owner?(record.user_id) 
   end
 
   class Scope < Scope
