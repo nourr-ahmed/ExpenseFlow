@@ -39,11 +39,23 @@ class ExpensePolicy < ApplicationPolicy
     owner?(record.user_id) && record.status == "rejected"
   end
 
+  class Scope < Scope
+    def resolve
+      if user.role == "admin"
+        scope.all 
+      elsif user.role == "manager"
+        team_members_ids = user.managed_team&.members&.pluck(:id) || []
+        scope.where(user_id: team_members_ids + [user.id])
+      else
+        scope.where(user_id: user.id)
+      end 
+    end
+  end
 
   private 
   
   def manager_of_owner?
-    manager? && user.managed_team&.members&.include?(record.user_id)
+    manager? && user.managed_team&.members&.pluck(:id)&.include?(record.user_id)
   end
 
   def eligible_reviewer?

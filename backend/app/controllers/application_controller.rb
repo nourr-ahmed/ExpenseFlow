@@ -3,7 +3,7 @@ class ApplicationController < ActionController::API
 
   before_action :authenticate_request
 
-  rescue from Pundit::NotAuthorizedError, with user_not_authorized
+  rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
   private
 
@@ -36,6 +36,6 @@ class ApplicationController < ActionController::API
   end
 
   def user_not_authorized
-    render json { error: "Forbidden" }, status: :forbidden
+    render json: { error: "Forbidden" }, status: :forbidden
   end
 end

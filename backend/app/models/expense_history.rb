@@ -11,4 +11,5 @@ class ExpenseHistory < ApplicationRecord
         if to_status == "rejected" && comment.blank?
             errors.add(:comment, "is required when rejecting an expense")
         end
+    end
 end

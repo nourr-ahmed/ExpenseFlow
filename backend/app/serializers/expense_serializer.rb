@@ -47,18 +47,19 @@ class ExpenseSerializer
         actor: actor_data(h)
       }
     end
+  end
 
-    def actor_data(history)
-      if history.actor_user
-        {
-          id: history.actor_user.id,
-          name: history.actor_user.name
-        }
-      else 
-        {
-          name: "system"
-        }
-      end
+  def actor_data(history)
+    if history.actor_user
+      {
+        id: history.actor_user.id,
+        name: history.actor_user.name
+      }
+    else 
+      {
+        name: "system"
+      }
     end
+  end
 
 end
