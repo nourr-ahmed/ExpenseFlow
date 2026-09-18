@@ -36,6 +36,8 @@ class ExpenseTransitionService
     ActiveRecord::Base.transaction do
       update_attrs = { status: to }
       update_attrs[:payment_reference] = payment_reference if payment_reference.present?
+      update_attrs[:approved_at] = Time.current if to == "approved"
+      update_attrs[:reimbursed_at] = Time.current if to == "reimbursed"
       @expense.update!(update_attrs)
       ExpenseHistory.create!(
         expense: @expense,

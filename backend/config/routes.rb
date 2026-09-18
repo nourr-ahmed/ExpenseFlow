@@ -13,8 +13,11 @@ Rails.application.routes.draw do
           post :reimburse
           post :reopen
         end
+        collection do
+          get :review_queue
+          get :report
+        end
       end
-      
     end
   end
 end

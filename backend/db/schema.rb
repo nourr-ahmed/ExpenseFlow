@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_17_131526) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_18_050227) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -46,6 +46,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_17_131526) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "payment_reference"
+    t.datetime "approved_at"
+    t.datetime "reimbursed_at"
     t.index ["category_id"], name: "index_expenses_on_category_id"
     t.index ["spent_on"], name: "index_expenses_on_spent_on"
     t.index ["status"], name: "index_expenses_on_status"

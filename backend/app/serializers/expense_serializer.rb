@@ -12,6 +12,8 @@ class ExpenseSerializer
       status: @expense.status,
       payment_reference: @expense.payment_reference,
       spent_on: @expense.spent_on,
+      approved_at: @expense.approved_at,
+      reimbursed_at: @expense.reimbursed_at,
       created_at: @expense.created_at,
       updated_at: @expense.updated_at,
       category: category_data,

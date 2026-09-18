@@ -39,6 +39,10 @@ class ExpensePolicy < ApplicationPolicy
     owner?(record.user_id) 
   end
 
+  def report?
+    admin?
+  end
+
   class Scope < Scope
     def resolve
       if user.role == "admin"

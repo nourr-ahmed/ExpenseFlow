@@ -1,8 +1,8 @@
 module Api
   module V1
     class ExpensesController < ApplicationController
-      before_action :set_expense, except: [:index, :create]
-      before_action :authorize_expense, except: [:index, :create]
+      before_action :set_expense, except: [:index, :create, :review_queue, :report]
+      before_action :authorize_expense, except: [:index, :create, :review_queue, :report]
 
       rescue_from ExpenseTransitionService::InvalidTransitionError, with: :handle_invalid_transition
 
@@ -20,7 +20,23 @@ module Api
         end
 
         expenses = expenses.where(category_id: params[:category_id]) if params[:category_id].present?
-        expenses = expenses.where(spent_on: params[:from]..params[:to]) if params[:from].present? && params[:to].present?
+
+        if params[:from].present? && params[:to].present?
+          begin
+            from_date = Date.parse(params[:from])
+            to_date = Date.parse(params[:to])
+          rescue ArgumentError
+            render json: { error: "from and to must be valid dates (e.g. 2026-08-01)" }, status: :unprocessable_entity
+            return
+          end
+
+          if from_date > to_date
+            render json: { error: "from must be before or equal to to" }, status: :unprocessable_entity
+            return
+          end
+
+          expenses = expenses.where(spent_on: from_date..to_date)
+        end
 
         sort_column = ALLOWED_SORT_COLUMNS.include?(params[:sort]) ? params[:sort] : "spent_on"
         sort_direction = params[:direction] == "asc" ? "asc" : "desc"
@@ -97,6 +113,62 @@ module Api
       def reopen
         ExpenseTransitionService.new(@expense, current_user).reopen!
         render json: ExpenseSerializer.new(@expense.reload).as_json
+      end
+
+      def review_queue
+        submitted = Expense.where(status: "submitted").includes(:user, :category)
+        expenses = submitted.select { |e| ExpensePolicy.new(current_user, e).approve? }
+        render json: expenses.map { |e| ExpenseSerializer.new(e).as_json }
+      end
+
+      def report
+        authorize Expense, :report?
+        status = params[:status]
+
+        unless %w[approved reimbursed].include?(status)
+          render json: { error: "status is required and must be 'approved' or 'reimbursed'" }, status: :unprocessable_entity
+          return
+        end
+
+        begin
+          from_date = Date.parse(params[:from].to_s)
+          to_date = Date.parse(params[:to].to_s)
+        rescue ArgumentError, TypeError
+          render json: { error: "from and to are required and must be valid dates (e.g. 2026-08-01)" }, status: :unprocessable_entity
+          return
+        end
+
+        if from_date > to_date
+          render json: { error: "from must be before or equal to to" }, status: :unprocessable_entity
+          return
+        end
+
+        date_column = status == "approved" ? "approved_at" : "reimbursed_at"
+        month_expr = Arel.sql("DATE_TRUNC('month', #{date_column})")
+
+        rows = Expense
+          .where(status: status)
+          .where("#{date_column} BETWEEN ? AND ?", from_date, to_date)
+          .joins(:category)
+          .group("categories.name", month_expr)
+          .order(month_expr)
+          .select(
+            "categories.name AS category_name",
+            Arel.sql("#{month_expr} AS month"),
+            Arel.sql("SUM(expenses.amount) AS total_amount"),
+            Arel.sql("COUNT(expenses.id) AS expense_count")
+          )
+
+        data = rows.map do |r|
+          {
+            category: r.category_name,
+            month: r.month.strftime("%Y-%m"),
+            total_amount: r.total_amount.to_f,
+            count: r.expense_count
+          }
+        end
+
+        render json: data
       end
 
       private
