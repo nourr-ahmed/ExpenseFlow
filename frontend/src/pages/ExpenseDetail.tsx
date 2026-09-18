@@ -96,14 +96,14 @@ export function ExpenseDetail() {
       </dl>
 
       <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", margin: "1rem 0" }}>
-        {canEdit && <Link to={`/expenses/${id}/edit`}>Edit</Link>}
+        {canEdit && <Link to={`/expenses/${id}/edit`} className="btn">Edit</Link>}
         {canDelete && <button disabled={acting} onClick={handleDelete}>Delete</button>}
         {canSubmit && <button disabled={acting} onClick={() => runAction("submit")}>Submit</button>}
         {canReopen && <button disabled={acting} onClick={() => runAction("reopen")}>Reopen</button>}
 
         {canReview && !showRejectForm && (
         <>
-            <div>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <label>Approve comment (optional): </label>
             <input value={approveComment} onChange={(e) => setApproveComment(e.target.value)} />
             </div>
@@ -121,7 +121,7 @@ export function ExpenseDetail() {
 
 
       {showRejectForm && (
-        <div style={{ marginBottom: "1rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
           <label>Rejection comment (required): </label>
           <input value={rejectComment} onChange={(e) => setRejectComment(e.target.value)} />
           <button

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Link, NavLink } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Login } from "./pages/Login";
@@ -8,21 +8,30 @@ import { ExpenseDetail } from "./pages/ExpenseDetail";
 import { ReviewQueue } from "./pages/ReviewQueue";
 import { AdminReport } from "./pages/AdminReport";
 
+
 function Header() {
   const { user, logout } = useAuth();
   if (!user) return null;
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", padding: "0.5rem 1rem" }}>
-      <div style={{ display: "flex", gap: "1rem" }}>
-        <Link to="/expenses">Expenses</Link>
+    <div className="app-header">
+      <nav>
+        <NavLink to="/expenses" className={({ isActive }) => isActive ? "active" : undefined}>
+          Expenses
+        </NavLink>
         {(user.role === "manager" || user.role === "admin") && (
-          <Link to="/review-queue">Review Queue</Link>
+          <NavLink to="/review-queue" className={({ isActive }) => isActive ? "active" : undefined}>
+            Review Queue
+          </NavLink>
         )}
-        {user.role === "admin" && <Link to="/admin/report">Report</Link>}
-      </div>
+        {user.role === "admin" && (
+          <NavLink to="/admin/report" className={({ isActive }) => isActive ? "active" : undefined}>
+            Report
+          </NavLink>
+        )}
+      </nav>
       <span>
         {user.name} ({user.role})
-        <button onClick={logout} style={{ marginLeft: "0.5rem" }}>Log out</button>
+        <button onClick={logout} style={{ marginLeft: "0.75rem" }}>Log out</button>
       </span>
     </div>
   );

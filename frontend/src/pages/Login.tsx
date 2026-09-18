@@ -27,20 +27,22 @@ export function Login() {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h1>ExpenseFlow Login</h1>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <div>
-        <label>Email</label>
-        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-      </div>
-      <div>
-        <label>Password</label>
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-      </div>
-      <button type="submit" disabled={submitting}>
-        {submitting ? "Signing in..." : "Sign in"}
-      </button>
-    </form>
-  );
+  <div className="login-page">
+        <form onSubmit={handleSubmit} className="login-card">
+        <h1>ExpenseFlow</h1>
+        {error && <p style={{ color: "red" }}>{error}</p>}
+        <div>
+            <label>Email</label>
+            <input type="email" className="field" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        </div>
+        <div>
+            <label>Password</label>
+            <input type="password" className="field" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        </div>
+        <button type="submit" disabled={submitting} style={{ width: "100%" }}>
+            {submitting ? "Signing in..." : "Sign in"}
+        </button>
+        </form>
+    </div>
+    );
 }

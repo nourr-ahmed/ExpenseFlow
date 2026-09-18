@@ -50,8 +50,11 @@ export function AdminReport() {
           <label>To</label><br />
           <input type="date" value={to} onChange={(e) => setTo(e.target.value)} required />
         </div>
-        <button type="submit" disabled={loading}>{loading ? "Loading..." : "Run Report"}</button>
-      </form>
+        <div>
+          <label style={{ visibility: "hidden" }}>Run</label><br />
+          <button type="submit" disabled={loading}>{loading ? "Loading..." : "Run Report"}</button>
+        </div>      
+    </form>
 
       {error && <p style={{ color: "red" }}>{error}</p>}
 

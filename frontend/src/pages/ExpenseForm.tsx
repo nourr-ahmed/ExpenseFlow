@@ -83,11 +83,11 @@ export function ExpenseForm() {
         </ul>
       )}
       <form onSubmit={handleSubmit}>
-        <div>
+        <div className="full">
           <label>Title</label>
           <input value={title} onChange={(e) => setTitle(e.target.value)} required />
         </div>
-        <div>
+        <div className="full">
           <label>Description</label>
           <textarea value={description} onChange={(e) => setDescription(e.target.value)} />
         </div>
@@ -95,7 +95,7 @@ export function ExpenseForm() {
           <label>Amount</label>
           <input type="number" step="0.01" min="0.01" max="100000" value={amount} onChange={(e) => setAmount(e.target.value)} required />
         </div>
-        <div>
+        <div> 
           <label>Category</label>
           <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} required>
             <option value="">Select a category</option>
