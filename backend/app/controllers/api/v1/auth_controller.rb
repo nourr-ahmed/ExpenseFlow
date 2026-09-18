@@ -21,7 +21,7 @@ module Api
 
             def logout
                 render json: {
-                        error: "Logged out successfully"
+                        message: "Logged out successfully"
                     }, status: :ok
             end
         end
