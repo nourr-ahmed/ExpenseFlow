@@ -63,7 +63,7 @@ module Api
         if expense.save
           render json: ExpenseSerializer.new(expense).as_json, status: :created
         else
-          render json: { error: "Only draft expenses can be edited" }, status: :unprocessable_entity
+          render json: { errors: expense.errors.full_messages }, status: :unprocessable_entity
         end
       end
 
