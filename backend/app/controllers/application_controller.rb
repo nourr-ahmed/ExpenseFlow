@@ -5,6 +5,7 @@ class ApplicationController < ActionController::API
   before_action :authenticate_request
 
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
+  rescue_from ActiveRecord::RecordInvalid, with: :render_validation_error
 
   private
 
@@ -38,5 +39,9 @@ class ApplicationController < ActionController::API
 
   def user_not_authorized
     render json: { error: "Forbidden" }, status: :forbidden
+  end
+
+  def render_validation_error(exception)
+    render json: { errors: exception.record.errors.full_messages }, status: :unprocessable_entity
   end
 end

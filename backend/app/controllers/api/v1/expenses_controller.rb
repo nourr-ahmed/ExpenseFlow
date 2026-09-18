@@ -46,7 +46,7 @@ module Api
         pagy, expenses = pagy(expenses, items: params[:per_page] || 20, overflow: :empty_page)
 
         render json: {
-          expenses: expenses.map {|e| ExpenseSerializer.new(e).as_json},
+          expenses: expenses.map { |e| ExpenseSerializer.new(e).as_json },
           pagination: {page: pagy.page, pages: pagy.pages, count: pagy.count}
         }
       end

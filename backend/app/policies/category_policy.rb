@@ -11,7 +11,13 @@ class CategoryPolicy < ApplicationPolicy
     admin?
   end
 
-  def update
+  def update?
     admin?
+  end
+
+  class Scope < Scope
+    def resolve
+      scope.all
+    end
   end
 end

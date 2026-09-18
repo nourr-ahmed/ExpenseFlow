@@ -18,6 +18,10 @@ Rails.application.routes.draw do
           get :report
         end
       end
+
+      resources :users, only: [:index, :show, :create, :update]
+      resources :teams, only: [:index, :show, :create, :update]
+      resources :categories, only: [:index, :create, :update]
     end
   end
 end

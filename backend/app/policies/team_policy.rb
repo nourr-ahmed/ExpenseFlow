@@ -19,6 +19,18 @@ class TeamPolicy < ApplicationPolicy
     admin? && !owner?(record.id)
   end
 
+  class Scope < Scope
+    def resolve
+      if user.role == "admin"
+        scope.all
+      elsif user.role == "manager"
+        scope.where(id: user.managed_team&.id)
+      else
+        scope.where(id: user.team_id)
+      end
+    end
+  end
+
   private
 
   def member_of_team?
