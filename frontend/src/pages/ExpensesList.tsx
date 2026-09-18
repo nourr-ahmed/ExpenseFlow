@@ -30,6 +30,8 @@ export function ExpensesList() {
   const [direction, setDirection] = useState("desc");
   const [page, setPage] = useState(1);
   const [onlyMine, setOnlyMine] = useState(false);
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
   const showOwnerColumn = user?.role !== "employee";
 
@@ -47,6 +49,8 @@ export function ExpensesList() {
     if (status) params.set("status", status);
     if (categoryId) params.set("category_id", categoryId);
     if (onlyMine && user) params.set("user_id", String(user.id));
+    if (dateFrom) params.set("from", dateFrom);
+    if (dateTo) params.set("to", dateTo);
     params.set("sort", sort);
     params.set("direction", direction);
     params.set("page", String(page));
@@ -62,14 +66,14 @@ export function ExpensesList() {
         ),
       )
       .finally(() => setLoading(false));
-  }, [status, categoryId, sort, direction, page, onlyMine, user]);
+  }, [status, categoryId, sort, direction, page, onlyMine, user, dateFrom, dateTo]);
 
   return (
     <div>
       <h1>{user ? titleForRole(user.role) : "Expenses"}</h1>
-      <Link to="/expenses/new">+ New Expense</Link>
+      <Link to="/expenses/new" className="btn">+ New Expense</Link>
 
-      <div
+      {/* <div
         style={{
           display: "flex",
           gap: "1rem",
@@ -107,6 +111,24 @@ export function ExpensesList() {
           ))}
         </select>
 
+        <input
+            type="date"
+            value={dateFrom}
+            onChange={(e) => {
+                setDateFrom(e.target.value);
+                setPage(1);
+            }}
+        />
+        <input
+        type="date"
+        value={dateTo}
+        min={dateFrom || undefined}
+        onChange={(e) => {
+            setDateTo(e.target.value);
+            setPage(1);
+        }}
+        />
+
         <select value={sort} onChange={(e) => setSort(e.target.value)}>
           <option value="spent_on">Sort: Spent on</option>
           <option value="amount">Sort: Amount</option>
@@ -134,7 +156,123 @@ export function ExpensesList() {
             Only mine
           </label>
         )}
-      </div>
+      </div> */}
+
+      <div
+  style={{
+    display: "flex",
+    gap: "1rem",
+    margin: "1rem 0",
+    alignItems: "center",
+    flexWrap: "wrap",
+  }}
+>
+  <select
+    value={status}
+    onChange={(e) => {
+      setStatus(e.target.value);
+      setPage(1);
+    }}
+  >
+    <option value="">All statuses</option>
+    {STATUSES.map((s) => (
+      <option key={s} value={s}>
+        {s}
+      </option>
+    ))}
+  </select>
+
+  <select
+    value={categoryId}
+    onChange={(e) => {
+      setCategoryId(e.target.value);
+      setPage(1);
+    }}
+  >
+    <option value="">All categories</option>
+    {categories.map((c) => (
+      <option key={c.id} value={c.id}>
+        {c.name}
+      </option>
+    ))}
+  </select>
+
+  <select value={sort} onChange={(e) => setSort(e.target.value)}>
+    <option value="spent_on">Sort: Spent on</option>
+    <option value="amount">Sort: Amount</option>
+    <option value="created_at">Sort: Created</option>
+  </select>
+
+  <select value={direction} onChange={(e) => setDirection(e.target.value)}>
+    <option value="desc">Descending</option>
+    <option value="asc">Ascending</option>
+  </select>
+
+  <label style={{ display: "flex", gap: "0.4rem", alignItems: "center" }}>
+    From
+    <input
+      type="date"
+      value={dateFrom}
+      onChange={(e) => {
+        const value = e.target.value;
+        setDateFrom(value);
+        // if "From" is set but "To" is still empty, default "To" to today
+        // so picking just one date behaves like "from that date until now",
+        // instead of silently filtering nothing (backend only filters when
+        // both from and to are present).
+        if (value && !dateTo) {
+          setDateTo(new Date().toISOString().slice(0, 10));
+        }
+        setPage(1);
+      }}
+    />
+  </label>
+
+  <label style={{ display: "flex", gap: "0.4rem", alignItems: "center" }}>
+    To
+    <input
+      type="date"
+      value={dateTo}
+      min={dateFrom || undefined}
+      disabled={!dateFrom}
+      title={!dateFrom ? "Pick a \"From\" date first" : undefined}
+      onChange={(e) => {
+        setDateTo(e.target.value);
+        setPage(1);
+      }}
+    />
+  </label>
+
+  {dateFrom && dateTo && (
+    <span style={{ fontSize: "0.85rem", color: "#555" }}>
+      Filtering: {dateFrom} → {dateTo}{" "}
+      <button
+        type="button"
+        onClick={() => {
+          setDateFrom("");
+          setDateTo("");
+          setPage(1);
+        }}
+      >
+        Clear dates
+      </button>
+    </span>
+  )}
+
+  {showOwnerColumn && (
+    <label>
+      <input
+        type="checkbox"
+        checked={onlyMine}
+        onChange={(e) => {
+          setOnlyMine(e.target.checked);
+          setPage(1);
+        }}
+      />{" "}
+      Only mine
+    </label>
+  )}
+</div>
 
       {error && <p style={{ color: "red" }}>{error}</p>}
       {loading && <p>Loading...</p>}
