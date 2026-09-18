@@ -36,7 +36,8 @@ class ExpenseSerializer
     {
       id: @expense.user.id,
       name: @expense.user.name,
-      role: @expense.user.role
+      role: @expense.user.role,
+      team: team_data
     }
   end
 
@@ -63,6 +64,11 @@ class ExpenseSerializer
         name: "system"
       }
     end
+  end
+
+  def team_data
+    return nil unless @expense.user.team
+    { id: @expense.user.team.id, name: @expense.user.team.name }
   end
 
 end

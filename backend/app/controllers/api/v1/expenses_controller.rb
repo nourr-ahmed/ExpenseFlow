@@ -9,7 +9,9 @@ module Api
       ALLOWED_SORT_COLUMNS = %w[spent_on amount created_at].freeze
 
       def index
-        expenses = policy_scope(Expense)
+        expenses = policy_scope(Expense).includes(:category, { expense_histories: :actor_user }, user: :team)
+
+        expenses = expenses.where(user_id: params[:user_id]) if params[:user_id].present?
 
         if params[:status].present?
           unless Expense::STATUSES.include?(params[:status])
@@ -148,7 +150,7 @@ module Api
 
         rows = Expense
           .where(status: status)
-          .where("#{date_column} BETWEEN ? AND ?", from_date, to_date)
+          .where("#{date_column} BETWEEN ? AND ?", from_date.beginning_of_day, to_date.end_of_day)
           .joins(:category)
           .group("categories.name", month_expr)
           .order(month_expr)

@@ -109,3 +109,15 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+dl {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 0.25rem 1rem;
+}
+dt {
+  font-weight: bold;
+}
+dd {
+  margin: 0;
+}
