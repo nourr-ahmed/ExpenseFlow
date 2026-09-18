@@ -22,6 +22,12 @@ Rails.application.routes.draw do
       resources :users, only: [:index, :show, :create, :update]
       resources :teams, only: [:index, :show, :create, :update]
       resources :categories, only: [:index, :create, :update]
+
+      resources :notifications, only: [:index] do
+        member do
+          post :mark_read
+        end
+      end
     end
   end
 end

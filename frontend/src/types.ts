@@ -52,3 +52,11 @@ export interface ReportRow {
   total_amount: number;
   count: number;
 }
+
+export interface Notification {
+  id: number;
+  message: string;
+  read: boolean;
+  expense_id: number;
+  created_at: string;
+}

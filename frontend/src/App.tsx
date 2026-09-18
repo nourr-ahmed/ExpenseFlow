@@ -7,6 +7,7 @@ import { ExpenseForm } from "./pages/ExpenseForm";
 import { ExpenseDetail } from "./pages/ExpenseDetail";
 import { ReviewQueue } from "./pages/ReviewQueue";
 import { AdminReport } from "./pages/AdminReport";
+import { NotificationsBell } from "./components/NotificationsBell";
 
 
 function Header() {
@@ -31,6 +32,7 @@ function Header() {
       </nav>
       <span>
         {user.name} ({user.role})
+        <NotificationsBell />
         <button onClick={logout} style={{ marginLeft: "0.75rem" }}>Log out</button>
       </span>
     </div>
